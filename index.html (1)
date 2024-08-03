@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en"> 
+ <head> 
+  <meta charset="utf-8"> 
+  <meta name="viewport" content="width=device-width,initial-scale=1"> 
+  <title></title> 
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      font-family:poppins;
+    }
+    body{
+     background-color:pink;
+    }
+     header{
+       display:flex;
+       justify-content:center;
+       align-items:centet;
+       
+     }
+     h1{
+       font-size:13vmin;
+       font-weight:900;
+       color:#64403E;
+     } 
+     .boxes{
+       margin-top:10vmin;
+       margin-bottom:10vmin;
+       display:flex;
+       justify-content:center;
+       align-items:center;
+       gap:2vmin;
+       flex-wrap:wrap;
+     }
+     .box{
+       display:flex;
+       justify-content:center;
+       align-items:center;
+       height:30vmin;
+       width:30vmin;
+       background:white;
+       font-size:17vmin;
+       font-weight:400;
+       color:pink;
+       border-radius:5vmin;
+       border:none;      
+       box-shadow: 0 1.6px 3.6px 0 rgb(0 0 0 / 13%), 0 0.3px 0.9px 0 rgb(0 0 0 / 11%);
+     }
+     footer{
+       display:flex;
+       justify-content:center;
+       align-items:center;
+     }
+    footer button{
+       margin-top:10vmin;
+       height:15vmin;
+       width:50vmin;
+       border-radius:5vmin;
+       background:#6E8898;
+       color:white;
+       font-size:10vmin;   
+       
+       box-shadow: 0 1.6px 3.6px 0 rgb(0 0 0 / 13%), 0 0.3px 0.9px 0 rgb(0 0 0 / 11%);
+     }
+     .newBtn{
+       margin-top:10vmin;
+       height:15vmin;
+       width:50vmin;
+       border-radius:5vmin;
+       background:#6E8898;
+       color:white;
+       font-size:7vmin;         
+       box-shadow: 0 1.6px 3.6px 0 rgb(0 0 0 / 13%), 0 0.3px 0.9px 0 rgb(0 0 0 / 11%);    
+     }
+     .hide{
+       height:100vmin;
+       width:100vmin;      
+       display:flex;
+       justify-content:center;
+       align-items:center;
+       flex-direction:column;   
+      
+     }
+     .hide p{
+       font-size:10vmin;
+       color:white;
+       font-weight:700;
+     }
+     .fullhide{
+     display:none;
+     }
+     .mainhide{
+       display:hidden;
+     }  
+  </style> 
+ </head> 
+ <body> 
+  <header> 
+   <h1>Tic-Tac-Toe</h1> 
+  </header> 
+  <div class="hide fullhide"> 
+   <p class="para">Winner</p> <button class="newBtn">New Game</button> 
+  </div> 
+  <main> 
+   <div class="container"> 
+    <div class="boxes"> <button class="box"></button> <button class="box"></button> <button class="box"></button> <button class="box"></button> <button class="box"></button> <button class="box"></button> <button class="box"></button> <button class="box"></button> <button class="box"></button> 
+     <footer> <button id="btn">Reset</button> 
+     </footer> 
+    </div> 
+   </div> 
+  </main> 
+  <script>
+    //variable deceleration 
+
+let a=document.querySelectorAll(".box")
+let btn=document.querySelector("#btn")
+let newBtn=document.querySelector(".newBtn")
+let Newgame=document.querySelector(".fullhide")
+let winner=document.querySelector(".para")
+let container=document.querySelector(".container")
+ 
+ let turnO=true;
+ let count = 0;
+ const winPatterns = [
+  [0, 1, 2],
+  [0, 3, 6],
+  [0, 4, 8],
+  [1, 4, 7],
+  [2, 5, 8],
+  [2, 4, 6],
+  [3, 4, 5],
+  [6, 7, 8],
+];
+
+//using for loop for click event and check result
+
+  for(let i=0;i<a.length;i++){
+   a[i].addEventListener("click",()=>{
+   if(turnO){
+     a[i].innerText="O"
+     turnO=false;
+   }else{
+     a[i].innerText="X"
+     turnO=true;  
+   }
+   a[i].disabled=true;
+   count++; 
+    
+   let isWinner = checkWinner();
+
+    if (count === 9 && isWinner) {
+      draw();
+    }
+    
+   })
+   
+ }
+ 
+ //function for, if match draw 
+ const draw=()=>{   
+       winner.innerText="Match Draw !"  
+       Newgame.classList.remove("fullhide");
+       container.classList.add("mainhide");
+       btn.classList.add("fullhide");
+       disable()   
+   }
+ 
+ 
+ //disble and enable function to fix the winner
+ const disable=()=>{
+   for(let box of a){
+     box.disabled=true;
+   }
+ }
+ const enable=()=>{
+   for(let box of a){
+     box.disabled=false;
+     box.innerText="";  
+   }
+ }
+ 
+ //function to check winner
+ const showWinner=(box1val)=>{
+   winner.innerHTML=`Winner is "${box1val}"`
+   Newgame.classList.remove("fullhide");
+   container.classList.add("mainhide");
+   btn.classList.add("fullhide");
+   disable()
+ }
+ 
+ //function for reset game  
+  const reset= ()=>{ 
+    count=0; 
+    
+    Newgame.classList.add("fullhide");
+    container.classList.remove("mainhide");
+    btn.classList.remove("fullhide");
+   enable(); 
+  }
+  newBtn.addEventListener("click",reset)
+  btn.addEventListener("click",reset)
+ 
+ const checkWinner=()=>{
+   for(pattern of winPatterns){
+     let box1val=a[pattern[0]].innerText
+     let box2val=a[pattern[1]].innerText
+     let box3val=a[pattern[2]].innerText
+     
+     if(box1val!="" && box2val!="" && box3val!=""){
+       if(box1val==box2val && box2val==box3val){
+       showWinner(box1val);
+       }
+     }
+   }
+ }  
+  </script> 
+ 
+</body></html>
