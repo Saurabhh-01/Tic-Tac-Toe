@@ -1,93 +1,105 @@
-let a=document.querySelectorAll(".box")
-let btn=document.querySelector("#btn")
-let newBtn=document.querySelector(".newBtn")
-let Newgame=document.querySelector(".fullhide")
-let winner=document.querySelector(".para")
-let container=document.querySelector(".container")
- 
- let turnO=true;
- let count = 0;
- const winPatterns = [
-  [0, 1, 2],
-  [0, 3, 6],
-  [0, 4, 8],
-  [1, 4, 7],
-  [2, 5, 8],
-  [2, 4, 6],
-  [3, 4, 5],
-  [6, 7, 8],
+// Game state
+const gameState = {
+    currentPlayer: 'O',
+    moveCount: 0,
+    gameActive: true
+};
+
+// DOM elements
+const cells = document.querySelectorAll('.box');
+const resetBtn = document.querySelector('#btn');
+const newGameBtn = document.querySelector('.newBtn');
+const gameOverScreen = document.querySelector('.game-status');
+const winnerText = document.querySelector('.para');
+const container = document.querySelector('.container');
+const currentPlayerDisplay = document.querySelector('.current-player');
+
+// Winning combinations
+const winPatterns = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+    [0, 4, 8], [2, 4, 6]             // Diagonals
 ];
 
+// Handle cell click
+const handleCellClick = (cell, index) => {
+    if (cell.innerText !== '' || !gameState.gameActive) return;
 
-  for(let i=0;i<a.length;i++){
-   a[i].addEventListener("click",()=>{
-   if(turnO){
-     a[i].innerText="O"
-     turnO=false;
-   }else{
-     a[i].innerText="X"
-     turnO=true;  
-   }
-   a[i].disabled=true;
-   count++; 
-    
-   let isWinner = checkWinner();
+    // Make move
+    cell.innerText = gameState.currentPlayer;
+    cell.style.color = gameState.currentPlayer === 'O' ? '#ff69b4' : '#64403E';
+    gameState.moveCount++;
 
-    if (count === 9 && !isWinner) {
-      draw();
+    // Check for winner
+    if (checkWinner()) {
+        endGame(`Winner is "${gameState.currentPlayer}"`);
+        return;
     }
-    
-   })
-   
- }
-  
- const draw=()=>{   
-       winner.innerText="Match Draw !"  
-       Newgame.classList.remove("fullhide");
-       container.classList.add("mainhide");
-       btn.classList.add("fullhide");
-       disable()   
-   }
- const disable=()=>{
-   for(let box of a){
-     box.disabled=true;
-   }
- }
- const enable=()=>{
-   for(let box of a){
-     box.disabled=false;
-     box.innerText="";  
-   }
- }
- 
- const showWinner=(box1val)=>{
-   winner.innerHTML=`Winner is "${box1val}"`
-   Newgame.classList.remove("fullhide");
-   btn.classList.add("fullhide");
-   disable()
- }
- 
- const checkWinner=()=>{
-   for(pattern of winPatterns){
-     let box1val=a[pattern[0]].innerText
-     let box2val=a[pattern[1]].innerText
-     let box3val=a[pattern[2]].innerText
-     
-     if(box1val!="" && box2val!="" && box3val!=""){
-       if(box1val==box2val && box2val==box3val){
-       showWinner(box1val);
-       return true;
-        }
-     }
-   }
- }
 
-  const reset= ()=>{ 
-    count=0; 
+    // Check for draw
+    if (gameState.moveCount === 9) {
+        endGame('Match Draw!');
+        return;
+    }
+
+    // Switch player
+    gameState.currentPlayer = gameState.currentPlayer === 'O' ? 'X' : 'O';
+    currentPlayerDisplay.textContent = gameState.currentPlayer;
+};
+
+// Check for winning combinations
+const checkWinner = () => {
+    return winPatterns.some(pattern => {
+        const [a, b, c] = pattern;
+        const values = [cells[a].innerText, cells[b].innerText, cells[c].innerText];
+        return values.every(value => value === gameState.currentPlayer);
+    });
+};
+
+// End game and show result
+const endGame = (message) => {
+    gameState.gameActive = false;
+    winnerText.innerText = message;
+    gameOverScreen.classList.remove('fullhide');
+    resetBtn.classList.add('fullhide');
+    cells.forEach(cell => cell.disabled = true);
+};
+
+// Reset game state
+const resetGame = () => {
+    gameState.currentPlayer = 'O';
+    gameState.moveCount = 0;
+    gameState.gameActive = true;
+    currentPlayerDisplay.textContent = 'O';
+
+    cells.forEach(cell => {
+        cell.innerText = '';
+        cell.disabled = false;
+        cell.style.color = '';
+    });
+
+    gameOverScreen.classList.add('fullhide');
+    resetBtn.classList.remove('fullhide');
+    container.classList.remove('mainhide');
+};
+
+// Event listeners
+cells.forEach((cell, index) => {
+    cell.addEventListener('click', () => handleCellClick(cell, index));
+});
+
+resetBtn.addEventListener('click', resetGame);
+newGameBtn.addEventListener('click', resetGame);
+
+// Initialize hover effect
+cells.forEach(cell => {
+    cell.addEventListener('mouseover', () => {
+        if (cell.innerText === '' && gameState.gameActive) {
+            cell.style.backgroundColor = '#f8f8f8';
+        }
+    });
     
-    Newgame.classList.add("fullhide");
-    btn.classList.remove("fullhide");
-   enable(); 
-  }
-  newBtn.addEventListener("click",reset)
-  btn.addEventListener("click",reset)
+    cell.addEventListener('mouseout', () => {
+        cell.style.backgroundColor = 'white';
+    });
+});
